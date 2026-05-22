@@ -1,7 +1,7 @@
 [
   {
     "game_id": "snake",
-    "title": "The apple eater:Snake",
+    "title": "Retro Snake",
     "description": "The timeless classic. Eat the red apples, grow longer, and avoid hitting the walls or your own tail!",
     "controls": "Arrow Keys (Up, Down, Left, Right)",
     "difficulty": "Easy"
