@@ -3,21 +3,42 @@
     "game_id": "snake",
     "title": "Retro Snake",
     "description": "The timeless classic. Eat the red apples, grow longer, and avoid hitting the walls or your own tail!",
-    "controls": "Arrow Keys (Up, Down, Left, Right)",
+    "controls": "Arrow Keys or On-Screen Touch Buttons",
     "difficulty": "Easy"
   },
   {
     "game_id": "pong",
     "title": "Cyber Pong",
     "description": "The original arcade table tennis. Play against an AI opponent and score 5 points to win.",
-    "controls": "Mouse movements / Touch scroll",
+    "controls": "Mouse movements / Drag finger on Touch Screen",
     "difficulty": "Medium"
   },
   {
     "game_id": "clicker",
     "title": "Space Clicker",
     "description": "An addictive, infinite clicker game. Click the core, gather energy, and buy automated upgrades.",
-    "controls": "Left Mouse Click / Tap",
+    "controls": "Left Mouse Click / Tap on Screen",
     "difficulty": "Casual"
+  },
+  {
+    "game_id": "tris",
+    "title": "Tic-Tac-Toe",
+    "description": "The classic grid puzzle. Get 3 of your signs in a row (horizontally, vertically, or diagonally) before the computer does.",
+    "controls": "Click or Tap on empty squares",
+    "difficulty": "Easy (Vs AI)"
+  },
+  {
+    "game_id": "chess",
+    "title": "Mini Chess",
+    "description": "A lightweight strategic chess board engine. Move your white pieces and capture the black CPU army.",
+    "controls": "Click/Tap a piece to select, then click target square",
+    "difficulty": "Hard (Vs AI)"
+  },
+  {
+    "game_id": "dino",
+    "title": "T-Rex Runner",
+    "description": "The legendary Google Chrome offline dinosaur game. Help the pixelated T-Rex run as far as possible.",
+    "controls": "Press SPACEBAR or Tap anywhere on screen to JUMP",
+    "difficulty": "Medium"
   }
 ]
