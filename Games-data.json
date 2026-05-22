@@ -9,7 +9,7 @@
   {
     "game_id": "pong",
     "title": "Cyber Pong",
-    "description": "The original arcade table tennis. Play against an AI opponent and score 5 points to win.",
+    "description": "The original arcade table tennis. Play against an AI opponent and score 5 points to win.I bet that you can't win",
     "controls": "Mouse movements / Drag finger on Touch Screen",
     "difficulty": "Medium"
   },
@@ -30,14 +30,14 @@
   {
     "game_id": "chess",
     "title": "Mini Chess",
-    "description": "A lightweight strategic chess board engine. Move your white pieces and capture the black CPU army.",
+    "description": "(its very buggy)A lightweight strategic chess board engine. Move your white pieces and capture the black CPU army.Btw you can fly!",
     "controls": "Click/Tap a piece to select, then click target square",
     "difficulty": "Hard (Vs AI)"
   },
   {
     "game_id": "dino",
     "title": "T-Rex Runner",
-    "description": "The legendary Google Chrome offline dinosaur game. Help the pixelated T-Rex run as far as possible.",
+    "description": "The legendary Google Chrome offline dinosaur game.(or how do you want to call that freaking creature) Help the pixelated T-Rex run as far as possible.",
     "controls": "Press SPACEBAR or Tap anywhere on screen to JUMP",
     "difficulty": "Medium"
   }
