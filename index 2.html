@@ -1,0 +1,228 @@
+    <script>
+        // --- GESTIONE NAVIGAZIONE PRINCIPALE ---
+        let snakeInterval = null;
+        let pongInterval = null;
+        let clickerInterval = null;
+
+        function showHub() {
+            // Ferma tassativamente tutti i timer attivi per liberare la memoria
+            if(snakeInterval) clearInterval(snakeInterval);
+            if(pongInterval) clearInterval(pongInterval);
+            if(clickerInterval) clearInterval(clickerInterval);
+            
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('hub-page').classList.add('active');
+            document.getElementById('global-back').style.display = 'none';
+        }
+
+        function launchGame(gameId, title, controls) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('global-back').style.display = 'block';
+
+            if (gameId === 'clicker') {
+                document.getElementById('clicker-page').classList.add('active');
+                initClicker();
+            } else {
+                document.getElementById('arena-page').classList.add('active');
+                document.getElementById('arena-title').innerText = title;
+                document.getElementById('arena-controls').innerHTML = `<strong>Controls:</strong> ${controls}`;
+                
+                // Resetta la lavagna del punteggio prima di avviare
+                document.getElementById("arena-score").innerText = "Score: 0";
+                
+                if(gameId === 'snake') initSnake();
+                if(gameId === 'pong') initPong();
+            }
+        }
+
+        // Caricamento dinamico delle schede dal file JSON
+        fetch('games-data.json')
+            .then(res => res.json())
+            .then(data => {
+                const container = document.getElementById('games-container');
+                container.innerHTML = ""; // Pulisce l'hub
+                data.forEach(game => {
+                    container.innerHTML += `
+                        <div class="game-card">
+                            <div>
+                                <h2>${game.title} <span class="badge">${game.difficulty}</span></h2>
+                                <p style="color:#a0aec0; font-size:0.9rem;">${game.description}</p>
+                            </div>
+                            <button class="play-btn" onclick="launchGame('${game.game_id}', '${game.title}', '${game.controls}')">Launch Game</button>
+                        </div>
+                    `;
+                });
+            }).catch(err => console.error("Error loading games metadata:", err));
+
+
+        // 🐍 MOTORINO DI GIOCO: RETRO SNAKE
+        function initSnake() {
+            if(snakeInterval) clearInterval(snakeInterval);
+            if(pongInterval) clearInterval(pongInterval);
+
+            const canvas = document.getElementById("gameCanvas");
+            const ctx = canvas.getContext("2d");
+            
+            let snake = [{x: 200, y: 200}, {x: 180, y: 200}, {x: 160, y: 200}];
+            let apple = {x: 100, y: 100};
+            let dx = 20, dy = 0, score = 0;
+            
+            document.onkeydown = function(e) {
+                if (e.key === "ArrowUp" && dy === 0) { dx = 0; dy = -20; e.preventDefault(); }
+                if (e.key === "ArrowDown" && dy === 0) { dx = 0; dy = 20; e.preventDefault(); }
+                if (e.key === "ArrowLeft" && dx === 0) { dx = -20; dy = 0; e.preventDefault(); }
+                if (e.key === "ArrowRight" && dx === 0) { dx = 20; dy = 0; e.preventDefault(); }
+            };
+
+            snakeInterval = setInterval(() => {
+                const head = {x: snake[0].x + dx, y: snake[0].y + dy};
+                snake.unshift(head);
+                
+                if (head.x === apple.x && head.y === apple.y) {
+                    score += 10;
+                    document.getElementById("arena-score").innerText = "Score: " + score;
+                    apple = {
+                        x: Math.floor(Math.random() * 20) * 20,
+                        y: Math.floor(Math.random() * 20) * 20
+                    };
+                } else { snake.pop(); }
+
+                if (head.x < 0 || head.x >= 400 || head.y < 0 || head.y >= 400 || snake.slice(1).some(b => b.x === head.x && b.y === head.y)) {
+                    clearInterval(snakeInterval);
+                    alert("Game Over! Score: " + score);
+                    initSnake();
+                    return;
+                }
+
+                ctx.clearRect(0, 0, 400, 400);
+                ctx.fillStyle = "#ff5555"; ctx.fillRect(apple.x, apple.y, 18, 18);
+                ctx.fillStyle = "#00ffcc"; snake.forEach(s => ctx.fillRect(s.x, s.y, 18, 18));
+            }, 120);
+        }
+
+
+        // 🏓 MOTORINO DI GIOCO: CYBER PONG (FISSATO)
+        function initPong() {
+            if(snakeInterval) clearInterval(snakeInterval);
+            if(pongInterval) clearInterval(pongInterval);
+
+            const canvas = document.getElementById("gameCanvas");
+            const ctx = canvas.getContext("2d");
+            
+            let p1Y = 160; 
+            let p2Y = 160; 
+            const paddleHeight = 80;
+            const paddleWidth = 10;
+            
+            let ball = { x: 200, y: 200, vx: 3, vy: 3, size: 10 };
+            let scoreP1 = 0, scoreAI = 0;
+
+            // Controllo fluido del mouse senza scatti
+            canvas.onmousemove = function(e) {
+                const rect = canvas.getBoundingClientRect();
+                const root = document.documentElement;
+                const mouseY = e.clientY - rect.top - root.scrollTop;
+                p1Y = mouseY - (paddleHeight / 2);
+                // Impedisce alla racchetta di uscire dai bordi del quadro
+                if(p1Y < 0) p1Y = 0;
+                if(p1Y > 400 - paddleHeight) p1Y = 400 - paddleHeight;
+            };
+
+            pongInterval = setInterval(() => {
+                // Movimento palla
+                ball.x += ball.vx;
+                ball.y += ball.vy;
+                
+                // Intelligenza Artificiale fluida per la racchetta destra
+                let p2YCenter = p2Y + (paddleHeight / 2);
+                if (p2YCenter < ball.y - 10) { p2Y += 3.5; } 
+                else if (p2YCenter > ball.y + 10) { p2Y -= 3.5; }
+                if(p2Y < 0) p2Y = 0; if(p2Y > 400 - paddleHeight) p2Y = 400 - paddleHeight;
+
+                // Rimbalzo soffitto e pavimento
+                if (ball.y <= 0 || ball.y >= 400 - ball.size) { ball.vy = -ball.vy; }
+
+                // Controllo collisione Racchetta Sinistra (Giocatore)
+                if (ball.x <= 20 && ball.x >= 10) {
+                    if (ball.y + ball.size >= p1Y && ball.y <= p1Y + paddleHeight) {
+                        ball.vx = Math.abs(ball.vx); // Rimbalza a destra
+                        ball.vx *= 1.05; // Accelera leggermente per aumentare la sfida
+                    }
+                }
+
+                // Controllo collisione Racchetta Destra (AI)
+                if (ball.x >= 370 - ball.size && ball.x <= 380) {
+                    if (ball.y + ball.size >= p2Y && ball.y <= p2Y + paddleHeight) {
+                        ball.vx = -Math.abs(ball.vx); // Rimbalza a sinistra
+                    }
+                }
+
+                // Gestione dei Punti
+                if (ball.x < 0) { 
+                    scoreAI++; 
+                    document.getElementById("arena-score").innerText = `Player: ${scoreP1} | AI: ${scoreAI}`;
+                    ball = { x: 200, y: 200, vx: 3, vy: (Math.random() > 0.5 ? 3 : -3), size: 10 }; 
+                }
+                if (ball.x > 400) { 
+                    scoreP1++; 
+                    document.getElementById("arena-score").innerText = `Player: ${scoreP1} | AI: ${scoreAI}`;
+                    ball = { x: 200, y: 200, vx: -3, vy: (Math.random() > 0.5 ? 3 : -3), size: 10 }; 
+                }
+
+                // Controllo vittoria a 5 punti
+                if (scoreP1 >= 5 || scoreAI >= 5) {
+                    clearInterval(pongInterval);
+                    alert(scoreP1 >= 5 ? "👑 Victory! You beat the AI!" : "❌ Defeat! Better luck next time.");
+                    initPong();
+                    return;
+                }
+
+                // Disegno della grafica su schermo
+                ctx.clearRect(0, 0, 400, 400);
+                ctx.fillStyle = "#ffffff"; ctx.fillRect(ball.x, ball.y, ball.size, ball.size); // Palla
+                ctx.fillStyle = "#00ffcc"; ctx.fillRect(10, p1Y, paddleWidth, paddleHeight); // Giocatore
+                ctx.fillStyle = "#ff5555"; ctx.fillRect(380, p2Y, paddleWidth, paddleHeight); // AI
+            }, 1000 / 60); // 60 FPS stabili
+        }
+
+
+        // ✨ MOTORINO DI GIOCO: SPACE CLICKER (SISTEMATO)
+        let energy = 0;
+        let autoIncome = 0;
+
+        function initClicker() {
+            if(clickerInterval) clearInterval(clickerInterval);
+            energy = 0;
+            autoIncome = 0;
+            
+            updateClickerUI();
+
+            // Ciclo separato per la produzione passiva al secondo
+            clickerInterval = setInterval(() => {
+                energy += autoIncome;
+                updateClickerUI();
+            }, 1000);
+        }
+
+        function clickCore() {
+            energy += 1;
+            updateClickerUI();
+        }
+
+        function buyUpgrade(cost, power) {
+            if (energy >= cost) {
+                energy -= cost;
+                autoIncome += power;
+                updateClickerUI();
+            }
+        }
+
+        // Funzione centralizzata per aggiornare i testi e accendere/spegnere i bottoni
+        function updateClickerUI() {
+            document.getElementById("clicker-score").innerText = Math.floor(energy);
+            
+            const btn1 = document.getElementById("up-btn-1");
+			const btn2 = document.getElementById("up-btn-2");
+			if(btn1) btn1.disabled = energy < 10;
+			if(btn2) btn2.disabled = energy < 50;
+			}
